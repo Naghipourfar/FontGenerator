@@ -28,6 +28,30 @@ def create_model(image_shape, n_targets):
     model.compile(optimizer='nadam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
+def load_pretrained_model(x_train, y_train):
+    network = keras.models.load_model('./model.hdf5')
+    network.load_weights('./checkpoint.hdf5')
+
+    checkpoint = ModelCheckpoint(filepath='./checkpoint.hdf5',
+                                 verbose=0,
+                                 monitor='val_acc',
+                                 save_best_only=True,
+                                 mode='auto',
+                                 period=1)
+
+    network.fit(x=x_train,
+                y=y_train,
+                epochs=n_epochs,
+                batch_size=n_batch_size,
+                validation_split=0.2,
+                callbacks=[checkpoint])
+
+    x_test = pd.read_csv('./test.csv').as_matrix()
+    x_test = x_test.reshape(28000, 28, 28, 1)
+    prediction = network.predict(x=x_test)
+
+    network.save('./model.hdf5')
+    return prediction
 
 x_data = pd.read_csv("../data/fonts.csv", header=None)
 y_data = pd.read_csv("../data/fonts.csv", header=None)
