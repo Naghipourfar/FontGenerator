@@ -18,7 +18,7 @@ from sklearn.preprocessing import LabelEncoder
 
 def create_model(image_shape, n_targets):
     inputs = Input(shape=image_shape, name='inputs')
-    conv_1 = Conv2D(filters=32, strides=[3, 3], padding='same', activation='relu', name='conv_1')(inputs)
+    conv_1 = Conv2D(filters=32, kernel_size=(3, 3), padding='same', activation='relu', name='conv_1')(inputs)
     max_pool_1 = MaxPooling2D((2, 2), padding='same')(conv_1)
     flatten = Flatten()(max_pool_1)
     fc_1 = Dense(512, activation='relu')(flatten)
@@ -41,8 +41,8 @@ def load_pretrained_model(x_train, y_train):
 
     network.fit(x=x_train,
                 y=y_train,
-                epochs=n_epochs,
-                batch_size=n_batch_size,
+                epochs=200,
+                batch_size=256,
                 validation_split=0.2,
                 callbacks=[checkpoint])
 
