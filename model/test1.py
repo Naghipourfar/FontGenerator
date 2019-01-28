@@ -1,13 +1,7 @@
+import pickle
+
 import numpy as np
-import pandas as pd
-
-import tensorflow as tf
-import matplotlib.pyplot as plt
-import keras
-
-from keras.layers import Input, Dense, Dropout, BatchNormalization
-from keras.models import Model
-from keras.callbacks import History, CSVLogger
+from keras.models import load_model
 
 """
     Created by Mohsen Naghipourfar on 2019-02-03.
@@ -17,3 +11,16 @@ from keras.callbacks import History, CSVLogger
     Skype: mn7697np
 """
 
+
+def load_test_data(path="../Data/Test/"):
+    x_test = np.array(pickle.load(open(path + "x_test.pkl", 'rb'), encoding='bytes'))
+    x_test = np.reshape(x_test, newshape=(-1, 32, 32, 1))
+    x_test = np.divide(np.subtract(x_test, 127.5), 127.5)
+    return x_test
+
+
+x_test = load_test_data(path="../Data/")
+model = load_model("../results/CNN/logs/ModelCheckpoint/best_model.h5")
+y_test = model.predict(x_test)
+y_test = np.array(y_test)
+np.save(file="../Data/prediction.pkl", arr=y_test, allow_pickle=True)

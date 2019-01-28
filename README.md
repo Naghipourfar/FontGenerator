@@ -64,7 +64,7 @@ The Loss functions defined for CGAN & GAN are Mean Absolute Error (MAE), Binary 
 ### Hyper-parameters
 |Model | #Layers  |  Activation    |  Optimizer  | Batch_size | LR | n_epochs |
 |----------| ------------- |------|-------| -----| --------| ------|
-|   CNN    | 5       | ReLU       |    SGD     | 256 | 0.0001 | 500 |
+|   CNN    | 5       | ReLU       |    Adam     | 256 | 0.0001 | 500 |
 |   GAN    | 3+5       | Leaky ReLU       |    Adam+SGD     | 256 | 0.0002+0.01 | 250 |
 |   CGAN    | 3+5       | Leaky ReLU       |    Adam+SGD     | 256 | 0.0002+0.01 | 100 |
 
@@ -74,4 +74,9 @@ The Loss functions defined for CGAN & GAN are Mean Absolute Error (MAE), Binary 
 <div align="center">
 	<img src="results/CGAN_Adam/figs/Alphabet.png" width="80%" />
 </div>
+### Inception Score
+|Character A|Character C|
+      |:------------:|:------------:|
+      |![Alt test](results/CGAN_Adam/figs/letters/A/A.png)|![Alt test](results/CGAN_Adam/figs/letters/C/C.png)|![Alt test](results/CGAN_Adam/figs/letters/M/M.png)|![Alt test](results/CGAN_Adam/figs/letters/N/N.png)|
+      |inception score:<br/> mean:2.148760 </br> stddev:0.21655125|inception score:<br/> mean:2.116231 </br> stddev:0.27043255||inception score:<br/> mean:2.197126 </br> stddev:0.203367|inception score:<br/> mean:2.169014 </br> stddev:0.0196410|
 

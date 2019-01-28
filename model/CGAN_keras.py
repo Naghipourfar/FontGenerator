@@ -281,15 +281,20 @@ class CGAN(object):
             sentence_image[:, 32 * i:32 * (i + 1)] = fake_image[0, :, :, 0]
         if epoch is None:
             if out_type == "goodQ":
-                for char in sentence:
-                    if char != " ":
-                        for i, idx in enumerate(char_indices):
-                            fake_image = self.sample_chr(chr(idx + 65))
-                            sentence_image[:, 32 * i:32 * (i + 1)] = fake_image[:, :, 0]
+                for i, idx in enumerate(char_indices):
+                    fake_image = self.sample_chr(chr(idx + 65))
+                    for ii in range(32):
+                        for jj in range(32):
+                            if fake_image[ii, jj] > 0:
+                                fake_image[ii, jj] += np.random.normal(0.0, 0.2, size=1)[0]
+
+                    small_noise = np.random.normal(0.0, 0.2, size=(32, 32))
+                    sentence_image[:, 32 * i:32 * (i + 1)] = fake_image[:, :, 0] + small_noise[:, :]
             plt.figure(figsize=(30, 5))
             plt.imshow(sentence_image, cmap='gray')
             plt.axis("off")
             plt.savefig(SAVE_RESULTS_PATH + "figs/sentences/" + sentence + "/Final.pdf")
+            print("SAVED!")
         else:
             plt.figure(figsize=(30, 5))
             plt.imshow(sentence_image, cmap='gray')
@@ -379,8 +384,6 @@ class CGAN(object):
         self.CNN = load_model(path)
 
 
-
-
 if __name__ == '__main__':
     os.makedirs(SAVE_RESULTS_PATH, exist_ok=True)
     cgan = CGAN()
@@ -393,4 +396,3 @@ if __name__ == '__main__':
     #     for i in range(80, 100, 5):
     #         cgan.sample_image(char=chr(idx), epoch=i)
     cgan.sample_sent(out_type="goodQ")
-
