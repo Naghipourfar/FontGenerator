@@ -74,9 +74,10 @@ The Loss functions defined for CGAN & GAN are Mean Absolute Error (MAE), Binary 
 <div align="center">
 	<img src="results/CGAN_Adam/figs/Alphabet.png" width="80%" />
 </div>
+
 ### Inception Score
 |Character A|Character C|Character M|Character N|
-      |:------------:|:------------:|
-      |![Alt test](results/CGAN_Adam/figs/letters/A/A.png)|![Alt test](results/CGAN_Adam/figs/letters/C/C.png)|![Alt test](results/CGAN_Adam/figs/letters/M/M.png)|![Alt test](results/CGAN_Adam/figs/letters/N/N.png)|
-      |inception score:<br/> mean:2.148760 </br> stddev:0.21655125|inception score:<br/> mean:2.116231 </br> stddev:0.27043255||inception score:<br/> mean:2.197126 </br> stddev:0.203367|inception score:<br/> mean:2.169014 </br> stddev:0.0196410|
+|:------------:|:------------:|:------------:|:------------:|
+|![Alt test](results/CGAN_Adam/figs/letters/A/A.png)|![Alt test](results/CGAN_Adam/figs/letters/C/C.png)|![Alt test](results/CGAN_Adam/figs/letters/M/M.png)|![Alt test](results/CGAN_Adam/figs/letters/N/N.png)|
+|inception score:<br/> mean:2.148760 </br> stddev:0.21655125|inception score:<br/> mean:2.116231 </br> stddev:0.27043255||inception score:<br/> mean:2.197126 </br> stddev:0.203367|inception score:<br/> mean:2.169014 </br> stddev:0.0196410|
 
