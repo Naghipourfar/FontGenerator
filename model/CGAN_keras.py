@@ -11,7 +11,7 @@ from keras import backend as K
 from keras.layers import BatchNormalization, MaxPooling2D, LeakyReLU
 from keras.layers import Input, Dense, Reshape, Flatten, Dropout, Conv2D, UpSampling2D, Conv2DTranspose, concatenate, \
     Activation
-from keras.models import Model
+from keras.models import Model, load_model
 from keras.regularizers import l1_l2
 from utils import get_char_index, get_sentence_index
 
@@ -255,7 +255,7 @@ class CGAN(object):
 
     def sample_sentence(self, sentence="THE QUICK BROWN FOX JUMPS OVER A LAZY DOG", epoch=0):
         char_indices = get_sentence_index(sentence)
-        r, c = 1, len(char_indices)
+        r, c, num = 1, len(char_indices), 100
         np.random.seed(2018 * (epoch + 10))
         noise = np.random.normal(0.0, 1.0, (r * c, self.z_dim))
         sampled_labels = np.array([chr_idx for chr_idx in char_indices]).reshape(-1, 1)
@@ -284,14 +284,14 @@ class CGAN(object):
         d_accuracies = log_df["D_acc"].values
         d_loss = log_df["D_loss"].values
         g_loss = log_df["G_loss"].values
-        n_epochs = np.max(epochs)
+        n_epochs = int(np.max(epochs))
 
         plt.figure(figsize=(15, 10))
         plt.plot(epochs, d_accuracies, label="Discriminator Accuracy")
         plt.xlabel("Epochs")
         plt.ylabel("Accuracy")
         plt.xticks([i for i in range(0, n_epochs + 5, 5)])
-        plt.yticks(np.arange(0.25, -0.05, -0.05).tolist())
+        plt.yticks(np.arange(0, 105, 5).tolist())
         plt.title("Discriminator Accuracy during CGAN Training")
         plt.grid()
         plt.savefig(SAVE_RESULTS_PATH + "figs/D_Accuracy.pdf")
@@ -302,7 +302,7 @@ class CGAN(object):
         plt.xlabel("Epochs")
         plt.ylabel("MAE Loss")
         plt.xticks([i for i in range(0, n_epochs + 5, 5)])
-        plt.yticks(np.arange(0.25, -0.05, -0.05).tolist())
+        # plt.yticks(np.arange(0.25, -0.05, -0.05).tolist())
         plt.title("Discriminator MAE loss during CGAN Training")
         plt.grid()
         plt.savefig(SAVE_RESULTS_PATH + "figs/D_Loss.pdf")
@@ -313,7 +313,7 @@ class CGAN(object):
         plt.xlabel("Epochs")
         plt.ylabel("MAE Loss")
         plt.xticks([i for i in range(0, n_epochs + 5, 5)])
-        plt.yticks(np.arange(0.25, -0.05, -0.05).tolist())
+        # plt.yticks(np.arange(0.25, -0.05, -0.05).tolist())
         plt.title("Generator MAE loss during CGAN Training")
         plt.grid()
         plt.savefig(SAVE_RESULTS_PATH + "figs/G_Loss.pdf")
@@ -324,16 +324,25 @@ class CGAN(object):
         self.discriminator.save(SAVE_RESULTS_PATH + "D.hdf5")
         self.CGAN.save(SAVE_RESULTS_PATH + "CGAN.hdf5")
 
+    def load_model(self):
+        self.generator = load_model(SAVE_RESULTS_PATH + "G.hdf5")
+        self.discriminator = load_model(SAVE_RESULTS_PATH + "G.hdf5")
+        self.CGAN = load_model(SAVE_RESULTS_PATH + "G.hdf5")
+
     def inception_score(self, X, eps=1e-20):
         kl = X * ((X + eps).log() - (X.mean(0) + eps).log().expand_as(X))
         score = np.exp(kl.sum(1).mean())
-
         return score
+
+    def load_CNN_model(self, path="../results/CNN/logs/best_model.h5"):
+        self.CNN = load_model(path)
 
 
 if __name__ == '__main__':
     os.makedirs(SAVE_RESULTS_PATH, exist_ok=True)
     cgan = CGAN()
-    cgan.fit(epochs=100, batch_size=256, sample_interval=5)
-    cgan.save_model()
-    cgan.plot_training()
+    # cgan.fit(epochs=100, batch_size=256, sample_interval=5)
+    # cgan.save_model()
+    # cgan.plot_training()
+    cgan.load_model()
+    cgan.sample_sentence(epoch=100)

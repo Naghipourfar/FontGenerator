@@ -64,7 +64,7 @@ The Loss functions defined for CGAN & GAN are Mean Absolute Error (MAE), Binary 
 ### Hyper-parameters
 |Model | #Layers  |  Activation    |  Optimizer  | Batch_size | LR | n_epochs |
 |----------| ------------- |------|-------| -----| --------| ------|
-|   CNN    | 5       | ReLU       |    Nadam     | 256 | 0.0001 | 500 |
+|   CNN    | 5       | ReLU       |    SGD     | 256 | 0.0001 | 500 |
 |   GAN    | 3+5       | Leaky ReLU       |    Adam+SGD     | 256 | 0.0002+0.01 | 250 |
 |   CGAN    | 3+5       | Leaky ReLU       |    Adam+SGD     | 256 | 0.0002+0.01 | 100 |
 

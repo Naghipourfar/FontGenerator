@@ -6,7 +6,7 @@ import keras
 import numpy as np
 import pandas as pd
 from keras.callbacks import ModelCheckpoint, CSVLogger, TensorBoard
-from keras.layers import Conv2D, MaxPooling2D, Dense, Input, Flatten, Dropout, BatchNormalization
+from keras.layers import Conv2D, MaxPooling2D, Dense, Input, Flatten, Dropout
 from keras.models import Model
 from keras.utils import to_categorical
 from scipy import misc
@@ -51,8 +51,8 @@ def create_model(image_shape, n_targets, dropout_rate=0.5):
     outputs = Dense(n_targets, activation='softmax', name="outputs")(fc_1)
 
     model = Model(inputs=inputs, outputs=outputs)
-    optimizer = keras.optimizers.Adam(lr=0.0001)
-    model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+    # optimizer = keras.optimizers.Adam(lr=0.0001)
+    model.compile(optimizer='SGD', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
 
@@ -143,8 +143,12 @@ def load_test_data(path="../Data/Test/"):
     return x_test, prediction
 
 
+def plot_training(save_path="../results/CNN/"):
+    pass
+
+
 if __name__ == '__main__':
-    log_path = "../results/logs/"
+    log_path = "../results/CNN/logs/"
     os.makedirs(log_path, exist_ok=True)
     os.makedirs(log_path + "Tensorboard/", exist_ok=True)
     os.makedirs(log_path + "ModelCheckpoint/", exist_ok=True)
@@ -158,12 +162,13 @@ if __name__ == '__main__':
 
     csv_logger = CSVLogger(log_path + "CSVLogger.csv")
     tensorboard_callback = TensorBoard(log_dir=log_path + "Tensorboard/", write_images=True)
-    model_checkpoint = ModelCheckpoint(filepath=log_path + "ModelCheckpoint/best_model.h5", save_best_only=True,
-                                       monitor="val_loss")
+    model_checkpoint = ModelCheckpoint(filepath=log_path + "ModelCheckpoint/weights.{epoch:02d}-{val_acc:.2f}.hdf5",
+                                       save_best_only=True,
+                                       monitor="val_acc")
     x_test, y_test = load_test_data()
 
     model.fit(x=x_data, y=y_data,
-              batch_size=512,
+              batch_size=256,
               epochs=200,
               verbose=2,
               callbacks=[csv_logger, tensorboard_callback, model_checkpoint],
