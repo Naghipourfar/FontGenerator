@@ -72,6 +72,6 @@ The Loss functions defined for CGAN & GAN are Mean Absolute Error (MAE), Binary 
 ## Sample Results
 
 <div align="center">
-	<img src="./results/CGAN_" width="80%" />
+	<img src="results/CGAN_Adam/figs/Alphabet.png" width="80%" />
 </div>
 
