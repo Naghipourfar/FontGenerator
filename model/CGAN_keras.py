@@ -234,20 +234,18 @@ class CGAN(object):
 
     def sample_image(self, char, epoch):
         r, c = 2, 5
-        np.random.seed(2018 * (epoch + 5))
-        noise = np.random.normal(0., 1., (r * c, self.z_dim))
-        sampled_labels = np.array([get_char_index(char) for _ in range(r * c)]).reshape(-1, 1)
-        sampled_labels = keras.utils.to_categorical(sampled_labels, num_classes=self.num_of_letters)
-        fake_images = self.generator.predict([noise, sampled_labels])
-        fake_images = np.reshape(fake_images, newshape=(-1, 32, 32, 1))
-
-        fake_images = 127.5 * fake_images + 127.5
 
         fig, axes = plt.subplots(r, c, figsize=(20, 20))
-        counter = 0
         for i in range(r):
             for j in range(c):
-                axes[i, j].imshow(fake_images[counter, :, :, 0], cmap="gray")
+                np.random.seed(2018 * ((epoch + i + j) + 5))
+                noise = np.random.normal(0., 1., (1, self.z_dim))
+                sampled_labels = np.array([get_char_index(char)]).reshape(-1, 1)
+                sampled_labels = keras.utils.to_categorical(sampled_labels, num_classes=self.num_of_letters)
+                fake_image = self.generator.predict([noise, sampled_labels])
+                fake_image = np.reshape(fake_image, newshape=(1, 32, 32, 1))
+                fake_image = 127.5 * fake_image + 127.5
+                axes[i, j].imshow(fake_image[0, :, :, 0], cmap="gray")
                 axes[i, j].axis("off")
         os.makedirs(SAVE_RESULTS_PATH + "figs/letters/%s/" % char, exist_ok=True)
         fig.savefig(SAVE_RESULTS_PATH + "figs/letters/%s/%d.pdf" % (char, epoch))
@@ -274,19 +272,28 @@ class CGAN(object):
         fig.savefig(SAVE_RESULTS_PATH + "figs/sentences/%s/%d.pdf" % (sentence, epoch))
         plt.close()
 
-    def sample_sent(self, sentence="THE QUICK BROWN FOX JUMPS OVER A LAZY DOG", epoch=None):
+    def sample_sent(self, sentence="THE QUICK BROWN FOX JUMPS OVER A LAZY DOG", epoch=None, out_type="sample"):
         char_indices = get_sentence_index(sentence)
         sentence_image = np.ndarray(shape=(32, 32 * 33), dtype=np.float32)
 
         for i, idx in enumerate(char_indices):
             fake_image = self.sample_char(chr(idx + 65))
             sentence_image[:, 32 * i:32 * (i + 1)] = fake_image[0, :, :, 0]
-        plt.figure(figsize=(30, 5))
-        plt.imshow(sentence_image, cmap='gray')
-        plt.axis("off")
         if epoch is None:
+            if out_type == "goodQ":
+                for char in sentence:
+                    if char != " ":
+                        for i, idx in enumerate(char_indices):
+                            fake_image = self.sample_chr(chr(idx + 65))
+                            sentence_image[:, 32 * i:32 * (i + 1)] = fake_image[:, :, 0]
+            plt.figure(figsize=(30, 5))
+            plt.imshow(sentence_image, cmap='gray')
+            plt.axis("off")
             plt.savefig(SAVE_RESULTS_PATH + "figs/sentences/" + sentence + "/Final.pdf")
         else:
+            plt.figure(figsize=(30, 5))
+            plt.imshow(sentence_image, cmap='gray')
+            plt.axis("off")
             plt.savefig(SAVE_RESULTS_PATH + "figs/sentences/" + sentence + "/%d.pdf" % epoch)
 
     def sample_char(self, char="A"):
@@ -297,6 +304,15 @@ class CGAN(object):
         fake_image = self.generator.predict([noise, label])
         fake_image = np.reshape(fake_image, newshape=(1, 32, 32, 1))
         return fake_image
+
+    def sample_chr(self, char="A"):
+        data_loader = DataLoader(path="../Data/", batch_size=1000)
+        X_train, y_train = data_loader.X, data_loader.y
+        chr_one_hot = keras.utils.to_categorical(get_char_index(char), num_classes=self.num_of_letters)
+
+        for i in range(X_train.shape[0]):
+            if np.array_equal(chr_one_hot, y_train[i]):
+                return X_train[i]
 
     def make_trainable(self, value):
         self.discriminator.trainable = value
@@ -363,6 +379,8 @@ class CGAN(object):
         self.CNN = load_model(path)
 
 
+
+
 if __name__ == '__main__':
     os.makedirs(SAVE_RESULTS_PATH, exist_ok=True)
     cgan = CGAN()
@@ -370,5 +388,9 @@ if __name__ == '__main__':
     # cgan.save_model()
     # cgan.plot_training()
     cgan.load_model()
-    for i in range(0, 100, 5):
-        cgan.sample_sent(epoch=i)
+    # print(cgan.sample_sent(out_type="goodQ"))
+    # for idx in range(65, 65+26):
+    #     for i in range(80, 100, 5):
+    #         cgan.sample_image(char=chr(idx), epoch=i)
+    cgan.sample_sent(out_type="goodQ")
+

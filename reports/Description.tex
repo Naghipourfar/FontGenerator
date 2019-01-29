@@ -76,6 +76,14 @@
 
 \section{نتایج بدست آمده در قسمت اول}
 برای شبکه اول، از تمام داده‌های \lr{Training} برای آموزش استفاده شده است و از داده \lr{X\_test} داده شده برای داده \lr{Validation} و ارزیابی شبکه‌ استفاده شده است. نمودار یادگیری برای داده آموزش و تست برای این شبکه در زیر آمده است.
+\begin{figure}[H]
+	\centerline{\includegraphics[width=\textwidth , height=0.5\textheight ]{../results/figs/Train-Test-Acc}}
+	\caption{دقت شبکه \lr{DCNN}}
+\end{figure}
+\begin{figure}[H]
+	\centerline{\includegraphics[width=\textwidth , height=0.5\textheight ]{../results/figs/Train-Test-Loss}}
+	\caption{تابع هزینه شبکه \lr{DCNN}}
+\end{figure}
 \section{نتایج بدست آمده در قسمت دوم}
 برای این قسمت نتایج عظیمی فراهم شده است! اکثر این نتایج در پوشه‌ \lr{results} ضمیمه شده‌اند. همچنین عکس‌های مربوط به تولید جمله مورد نظر در صورت پروژه و کاراکتر‌های مختلف در طول آموزش شبکه \lr{CGAN} در زیر آمده است.
 \subsection{حروف الفبا}
@@ -308,7 +316,39 @@
 \begin{figure}[H]
 	\centerline{\includegraphics[width=\textwidth , height=\textheight ]{../results/CGAN_Adam/figs/letters/Z/90.pdf}}
 \end{figure}
+%------------------------------------------------------------
 
+\subsection{تولید جمله مورد نظر}
+\begin{figure}[H]
+	\centerline{\includegraphics[width=10cm , height=5cm ]{../results/CGAN_Adam/figs/sentences/THE QUICK BROWN FOX JUMPS OVER A LAZY DOG/60.pdf}}
+\end{figure}
+
+\begin{figure}[H]
+	\centerline{\includegraphics[width=10cm , height=5cm ]{../results/CGAN_Adam/figs/sentences/THE QUICK BROWN FOX JUMPS OVER A LAZY DOG/70.pdf}}
+\end{figure}
+
+\begin{figure}[H]
+	\centerline{\includegraphics[width=10cm , height=5cm ]{../results/CGAN_Adam/figs/sentences/THE QUICK BROWN FOX JUMPS OVER A LAZY DOG/80.pdf}}
+\end{figure}
+
+\begin{figure}[H]
+	\centerline{\includegraphics[width=10cm , height=5cm ]{../results/CGAN_Adam/figs/sentences/THE QUICK BROWN FOX JUMPS OVER A LAZY DOG/90.pdf}}
+\end{figure}
+
+\subsection{یادگیری شبکه مولد}
+عکس‌‌های زیر فرآیند مربوط به یادگیری شبکه‌مولد را نشان می‌دهند.
+\begin{figure}[H]
+	\centerline{\includegraphics[width=\textwidth , height=0.5\textheight ]{../results/CGAN_Adam/figs/D_Accuracy}}
+	\caption{دقت شبکه \lr{Discriminator}}
+\end{figure}
+\begin{figure}[H]
+	\centerline{\includegraphics[width=\textwidth , height=0.5\textheight ]{../results/CGAN_Adam/figs/D_Loss}}
+	\caption{تابع هزینه شبکه \lr{Discriminator}}
+\end{figure}
+\begin{figure}[H]
+	\centerline{\includegraphics[width=\textwidth , height=0.5\textheight ]{../results/CGAN_Adam/figs/G_Loss}}
+	\caption{تابع هزینه شبکه \lr{Generator}}
+\end{figure}
 
 
 
