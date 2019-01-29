@@ -8,12 +8,12 @@
 
 
 def get_char_index(char='A'):
-    return ord(char) - 64
+    return ord(char) - 65
 
 
 def get_sentence_index(sentence="THE QUICK BROWN FOX JUMPS OVER A LAZY DOG"):
     indices = []
     for char in sentence:
         if char != " ":
-            indices.append(ord(char) - 64)
+            indices.append(ord(char) - 65)
     return indices

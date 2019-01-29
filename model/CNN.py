@@ -48,7 +48,7 @@ def create_model(image_shape, n_targets, dropout_rate=0.5):
     # fc_2 = Dense(64, activation='relu')(fc_1)
     # fc_2 = BatchNormalization()(fc_2)
     # fc_2 = Dropout(dropout_rate)(fc_2)
-    outputs = Dense(n_targets, activation='softmax')(fc_1)
+    outputs = Dense(n_targets, activation='softmax', name="outputs")(fc_1)
 
     model = Model(inputs=inputs, outputs=outputs)
     optimizer = keras.optimizers.Adam(lr=0.0001)
@@ -156,7 +156,7 @@ if __name__ == '__main__':
     model = create_model((32, 32, 1,), y_data.shape[1])
     model.summary()
 
-    csv_logger = CSVLogger(log_path + "csv_log.csv")
+    csv_logger = CSVLogger(log_path + "CSVLogger.csv")
     tensorboard_callback = TensorBoard(log_dir=log_path + "Tensorboard/", write_images=True)
     model_checkpoint = ModelCheckpoint(filepath=log_path + "ModelCheckpoint/best_model.h5", save_best_only=True,
                                        monitor="val_loss")

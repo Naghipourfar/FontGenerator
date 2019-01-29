@@ -82,7 +82,7 @@ mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     for i in range(1000000):
-        x_train_batch, y_train_batch = mnist.train.next_batch(batch_size)
+        x_train_batch, y_train_batch = mnist.fit.next_batch(batch_size)
 
         _, D_loss_curr = sess.run([D_solver, D_loss], feed_dict={X: x_train_batch, Z: sample_Z(batch_size, 100)})
         _, G_loss_curr = sess.run([G_solver, G_loss], feed_dict={Z: sample_Z(batch_size, 100)})

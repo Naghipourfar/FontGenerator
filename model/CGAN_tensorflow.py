@@ -4,7 +4,6 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-
 from dataset import DataLoader
 
 """
@@ -18,6 +17,30 @@ y_dim = 26
 x_dim = 1024
 
 
+def conv2d(input, name, kshape, strides=None):
+    if strides is None:
+        strides = [1, 1, 1, 1]
+    with tf.name_scope(name):
+        weights = tf.Variable(tf.truncated_normal(shape=kshape, mean=0.0, stddev=0.01), name="Weight")
+        bias = tf.Variable(tf.zeros(shape=kshape[3]), name="Bias")
+        out = tf.nn.conv2d(input, weights, strides=strides, padding='SAME')
+        out = tf.nn.bias_add(out, bias)
+        out = tf.nn.relu(out)
+    return out, weights, bias
+
+
+def deconv2d(input, name, kshape, n_outputs, strides=[1, 1]):
+    with tf.name_scope(name):
+        pass
+def maxpool2d(x, name, kshape=[1, 2, 2, 1], strides=[1, 2, 2, 1]):
+    with tf.name_scope(name):
+        out = tf.nn.max_pool(x,
+                             ksize=kshape,
+                             strides=strides,
+                             padding='VALID')
+        return out
+
+
 class CGAN(object):
     def __init__(self, lr=0.0001, z_dim=100):
         self.lr = lr
@@ -29,7 +52,7 @@ class CGAN(object):
         self.create_model()
 
     def create_model(self):
-        # Discriminator
+        # Discriminator Architecture
         with tf.name_scope("Discriminator"):
             with tf.name_scope("Layer-1"):
                 self.D_W1 = tf.Variable(tf.truncated_normal(shape=[x_dim + y_dim, 128], mean=0.0, stddev=0.01),
@@ -42,12 +65,15 @@ class CGAN(object):
 
             self.theta_D = [self.D_W1, self.D_W2, self.D_b1, self.D_b2]
 
-        # Generator
+        # Generator Architecture
         with tf.name_scope("Generator"):
-            with tf.name_scope("Layer-1"):
-                self.G_W1 = tf.Variable(tf.truncated_normal(shape=[self.z_dim + y_dim, 128], mean=0.0, stddev=0.01),
+            with tf.name_scope("DenseLayer-1"):
+                self.G_W1 = tf.Variable(tf.truncated_normal(shape=[self.z_dim + y_dim, 256], mean=0.0, stddev=0.01),
                                         name='Weight')
-                self.G_b1 = tf.Variable(tf.zeros([128]), name='Bias')
+
+                self.G_b1 = tf.Variable(tf.zeros([256]), name='Bias')
+            with tf.name_scope("ConvLayer-1"):
+                pass
 
             with tf.name_scope("Layer-2"):
                 self.G_W2 = tf.Variable(tf.truncated_normal(shape=[128, x_dim], mean=0.0, stddev=0.01), name='Weight')
@@ -75,6 +101,7 @@ class CGAN(object):
     def generator(self, z, y):
         inputs = tf.concat(values=[z, y], axis=1)
         G_h1 = tf.nn.relu(tf.matmul(inputs, self.G_W1) + self.G_b1)
+        G_conv1 = deconv2d()
         G_log_prob = tf.matmul(G_h1, self.G_W2) + self.G_b2
         G_prob = tf.nn.sigmoid(G_log_prob)
 
@@ -111,25 +138,27 @@ class CGAN(object):
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
             for i in range(n_epochs):
-                x_train_batch, y_train_batch = data_loader.get_next_batch()
+                for j in range(data_loader.n_samples // batch_size):
+                    x_train_batch, y_train_batch = data_loader.get_next_batch()
 
-                _, D_loss_curr = sess.run([self.D_solver, self.D_loss],
-                                          feed_dict={self.X: x_train_batch, self.y: y_train_batch,
-                                                     self.Z: self.sample_Z(batch_size, self.z_dim)})
-                _, G_loss_curr = sess.run([self.G_solver, self.G_loss],
-                                          feed_dict={self.y: y_train_batch,
-                                                     self.Z: self.sample_Z(batch_size, self.z_dim)})
-                # for j in range(54):
-                #     _, G_loss_curr = sess.run([self.G_solver, self.G_loss],
-                #                               feed_dict={self.y: y_train_batch, self.Z: self.sample_Z(batch_size, self.z_dim)})
-                if i % 100 == 0:
+                    _, D_loss_curr = sess.run([self.D_solver, self.D_loss],
+                                              feed_dict={self.X: x_train_batch, self.y: y_train_batch,
+                                                         self.Z: self.sample_Z(batch_size, self.z_dim)})
+                    _, G_loss_curr = sess.run([self.G_solver, self.G_loss],
+                                              feed_dict={self.y: y_train_batch,
+                                                         self.Z: self.sample_Z(batch_size, self.z_dim)})
+                    for j in range(14):
+                        _, G_loss_curr = sess.run([self.G_solver, self.G_loss],
+                                                  feed_dict={self.y: y_train_batch,
+                                                             self.Z: self.sample_Z(batch_size, self.z_dim)})
+                if i % 1 == 0:
                     print("Epoch: %4d\tD_loss: %.4f\tG_loss: %.4f" % (i, D_loss_curr, G_loss_curr))
                     # Generate New samples
-                    n_samples = 16
-                    new_samples = self.generate_new_samples(sess, n_samples=n_samples, letter='B')
+                    n_samples, letter = 16, 'B'
+                    new_samples = self.generate_new_samples(sess, n_samples=n_samples, letter=letter)
                     size = int(math.sqrt(n_samples))
                     # Display New samples
-                    fig, axes = plt.subplots(size, size, figsize=(15, 15))
+                    fig, axes = plt.subplots(size // 2, size // 2, figsize=(15, 15))
 
                     counter = 0
                     for row in axes:
@@ -138,12 +167,24 @@ class CGAN(object):
                             col.axis('off')
                             counter += 1
 
-                    os.makedirs("../results/figs/", exist_ok=True)
-                    plt.savefig("../results/figs/new_samples_iter%d.pdf" % i)
+                    os.makedirs("../results/figs/%s/" % letter, exist_ok=True)
+                    plt.savefig("../results/figs/%s/new_samples_iter%d.pdf" % (letter, i))
                     plt.show()
+
+    def dense(self, x, n_input_neurons, n_output_neurons, activation=tf.nn.relu, name_scope="Dense_1"):
+        with tf.name_scope(name_scope):
+            w = tf.Variable(tf.truncated_normal(shape=(n_input_neurons, n_output_neurons),
+                                                mean=0, stddev=1.5, seed=1),
+                            name="Weight")
+            b = tf.Variable(tf.zeros([n_output_neurons]), name="Bias")
+            hidden_output = tf.add(tf.matmul(x, w), b)
+            activation_output = activation(hidden_output)
+            # tf.summary.histogram("Weights", w)
+
+            return activation_output
 
 
 if __name__ == '__main__':
-    network = CGAN(lr=0.001, z_dim=1000)
+    network = CGAN(lr=0.0001, z_dim=1000)
     network.fit(n_epochs=5000,
                 batch_size=512)
