@@ -58,15 +58,15 @@ jupyter notebook
 The input consists of a big list of handwritten characters images with 9000 different fonts.
 The output of CNN is detected character given an image, output of CGAN & GAN is new generated character or sentence.
 The input images are scaled between [-1, 1] using normalization.
-The Loss functions defined for CNN are Mean Absolute Error (MAE), Mean Squared Erro (MSE), Categorical CrossEntropy.
+The Loss functions defined for CNN are Mean Absolute Error (MAE), Mean Squared Error (MSE), Categorical CrossEntropy.
 The Loss functions defined for CGAN & GAN are Mean Absolute Error (MAE), Binary CrossEntropy.
 
 ### Hyper-parameters
-|Model | #Layers  |  Activation    |    | |
-|----------| ------------- |------|-------| -----|
-|   CNN    | 5       | ReLU       |    0.956184     | 114308 |
-|   GAN    | 3+5       | Leaky ReLU       |    000029.     | 115525 |
-|   CGAN    | 3+5       | Leaky ReLU       |    0.00029     | 201718 |
+|Model | #Layers  |  Activation    |  Optimizer  | Batch_size | LR | n_epochs |
+|----------| ------------- |------|-------| -----| --------| ------|
+|   CNN    | 5       | ReLU       |    Nadam     | 256 | 0.0001 | 500 |
+|   GAN    | 3+5       | Leaky ReLU       |    Adam+SGD     | 256 | 0.0002+0.01 | 250 |
+|   CGAN    | 3+5       | Leaky ReLU       |    Adam+SGD     | 256 | 0.0002+0.01 | 100 |
 
 
 ## Sample Results
