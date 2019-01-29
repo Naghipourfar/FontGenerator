@@ -33,7 +33,7 @@ class CGAN(object):
         self.channels = 1
         self.image_shape = (self.width, self.height, self.channels)
         self.num_of_letters = 26
-        self.z_dim = 100
+        self.z_dim = 500
         self.discriminator = self.generator = self.CGAN = None
         self.create_network()
         # self.generator.summary()
@@ -201,7 +201,7 @@ class CGAN(object):
                 for i in range(26):
                     char = chr(i + 65)
                     self.sample_image(char=char, epoch=epoch)
-                # self.sample_sentence(epoch=epoch)
+                self.sample_sent(epoch=epoch)
             csv_logger.to_csv(SAVE_RESULTS_PATH + "CSVLogger.log")
 
     def sample_images(self, epoch):
@@ -260,6 +260,7 @@ class CGAN(object):
         noise = np.random.normal(0.0, 1.0, (r * c, self.z_dim))
         sampled_labels = np.array([chr_idx for chr_idx in char_indices]).reshape(-1, 1)
         sampled_labels = keras.utils.to_categorical(sampled_labels, num_classes=self.num_of_letters)
+
         fake_images = self.generator.predict([noise, sampled_labels])
         fake_images = np.reshape(fake_images, newshape=(-1, 32, 32, 1))
         fake_images = 127.5 * fake_images + 127.5
@@ -272,6 +273,30 @@ class CGAN(object):
         os.makedirs(SAVE_RESULTS_PATH + "figs/sentences/%s/" % sentence, exist_ok=True)
         fig.savefig(SAVE_RESULTS_PATH + "figs/sentences/%s/%d.pdf" % (sentence, epoch))
         plt.close()
+
+    def sample_sent(self, sentence="THE QUICK BROWN FOX JUMPS OVER A LAZY DOG", epoch=None):
+        char_indices = get_sentence_index(sentence)
+        sentence_image = np.ndarray(shape=(32, 32 * 33), dtype=np.float32)
+
+        for i, idx in enumerate(char_indices):
+            fake_image = self.sample_char(chr(idx + 65))
+            sentence_image[:, 32 * i:32 * (i + 1)] = fake_image[0, :, :, 0]
+        plt.figure(figsize=(30, 5))
+        plt.imshow(sentence_image, cmap='gray')
+        plt.axis("off")
+        if epoch is None:
+            plt.savefig(SAVE_RESULTS_PATH + "figs/sentences/" + sentence + "/Final.pdf")
+        else:
+            plt.savefig(SAVE_RESULTS_PATH + "figs/sentences/" + sentence + "/%d.pdf" % epoch)
+
+    def sample_char(self, char="A"):
+        char_index = get_char_index(char)
+        label = keras.utils.to_categorical([char_index], num_classes=self.num_of_letters)
+        noise = np.random.normal(0.0, 1.0, size=(1, self.z_dim))
+
+        fake_image = self.generator.predict([noise, label])
+        fake_image = np.reshape(fake_image, newshape=(1, 32, 32, 1))
+        return fake_image
 
     def make_trainable(self, value):
         self.discriminator.trainable = value
@@ -345,4 +370,5 @@ if __name__ == '__main__':
     # cgan.save_model()
     # cgan.plot_training()
     cgan.load_model()
-    cgan.sample_sentence(epoch=100)
+    for i in range(0, 100, 5):
+        cgan.sample_sent(epoch=i)
