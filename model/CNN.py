@@ -6,7 +6,8 @@ import numpy as np
 import pandas as pd
 from keras.models import load_model
 from keras.callbacks import ModelCheckpoint, CSVLogger, TensorBoard
-from keras.layers import Conv2D, MaxPooling2D, Dense, Input, Flatten, LeakyReLU, BatchNormalization, Dropout
+from keras.layers import Conv2D, MaxPooling2D, Dense, Input, Flatten, LeakyReLU, BatchNormalization, Dropout, \
+    GaussianNoise, Reshape
 from keras.models import Model
 from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
@@ -21,7 +22,10 @@ from sklearn.preprocessing import LabelEncoder
 
 def create_model(image_shape, n_targets, dropout_rate=0.5):
     inputs = Input(shape=image_shape, name='inputs')
-    conv_2 = Conv2D(filters=64, kernel_size=(5, 5), padding='same', name='conv_2')(inputs)
+    flat = Flatten()(inputs)
+    flat = GaussianNoise(stddev=0.01)(flat)
+    flat = Reshape((32, 32, 1))(flat)
+    conv_2 = Conv2D(input_shape=(32, 32, 1), filters=64, kernel_size=(5, 5), padding='same', name='conv_2')(flat)
     conv_2 = LeakyReLU(0.2)(conv_2)
     conv_2 = Dropout(dropout_rate)(conv_2)
     conv_2 = Conv2D(filters=64, kernel_size=(5, 5), padding='same', name='conv_3')(conv_2)
@@ -76,34 +80,34 @@ def load_test_data(path="../Data/Test/"):
 
 
 if __name__ == '__main__':
-    log_path = "../results/CNN/logs/"
-    os.makedirs(log_path, exist_ok=True)
-    os.makedirs(log_path + "Tensorboard/", exist_ok=True)
-    os.makedirs(log_path + "ModelCheckpoint/", exist_ok=True)
+    # log_path = "../results/CNN/logs/"
+    # os.makedirs(log_path, exist_ok=True)
+    # os.makedirs(log_path + "Tensorboard/", exist_ok=True)
+    # os.makedirs(log_path + "ModelCheckpoint/", exist_ok=True)
     #
     # unzip_data()
-    # load_and_save_data()
-    x_data, y_data = load_test_data(path="../Data/")
-    # x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.25, shuffle=True)
-
+    # # load_and_save_data()
+    # x_data, y_data = load_test_data(path="../Data/")
+    # # x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.25, shuffle=True)
+    #
     model = create_model((32, 32, 1,), 26)
     model.summary()
 
-    csv_logger = CSVLogger(log_path + "CSVLogger.csv")
-    tensorboard_callback = TensorBoard(log_dir=log_path + "Tensorboard/", write_images=True)
-    model_checkpoint = ModelCheckpoint(filepath=log_path + "ModelCheckpoint/weights.{epoch:02d}-{acc:.2f}.hdf5",
-                                       save_best_only=True,
-                                       monitor="acc")
+    # csv_logger = CSVLogger(log_path + "CSVLogger.csv")
+    # tensorboard_callback = TensorBoard(log_dir=log_path + "Tensorboard/", write_images=True)
+    # model_checkpoint = ModelCheckpoint(filepath=log_path + "ModelCheckpoint/weights.{epoch:02d}-{acc:.2f}.hdf5",
+    #                                    save_best_only=True,
+    #                                    monitor="acc")
 
     #
-    model.fit(x=x_data, y=y_data,
-              batch_size=512,
-              epochs=500,
-              verbose=2,
-              callbacks=[csv_logger, tensorboard_callback, model_checkpoint])
-              # validation_data=(x_test, y_test))
-    #
-    model.save("../results/saved_model.hdf5")
+    # model.fit(x=x_data, y=y_data,
+    #           batch_size=512,
+    #           epochs=500,
+    #           verbose=2,
+    #           callbacks=[csv_logger, tensorboard_callback, model_checkpoint])
+    #           # validation_data=(x_test, y_test))
+    # #
+    # model.save("../results/saved_model.hdf5")
 
     # x_test, y_test = load_test_data()
     # model.evaluate(x_test, y_test)
