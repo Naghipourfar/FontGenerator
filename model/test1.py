@@ -20,7 +20,7 @@ def load_test_data(path="../Data/Test/"):
 
 
 x_test = load_test_data(path="../Data/")
-model = load_model("../results/CNN/logs/ModelCheckpoint/best_model.h5")
+model = load_model("../results/logs/ModelCheckpoint/best_model.h5")
 y_test = model.predict(x_test)
 y_test = np.array(y_test)
-np.save(file="../Data/prediction.pkl", arr=y_test, allow_pickle=True)
+np.save(file="../Data/Test/prediction.pkl", arr=y_test, allow_pickle=True)
