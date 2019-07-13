@@ -1,5 +1,5 @@
-# FontDetector
-FontDetector is an end-to-end system which classifies handwritten characters using a deep convolutional neural networks(DCNN).
+# FontGenerator
+FontGenerator is an end-to-end system which generates handwritten characters with some font using conditional Generative Adversarial Network (C-GANs).
 
 ## Introduction
 A tensorflow(keras) implementation of handwritten digit recognition and generation.
